@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-campaign-details-flow" doc:id="1a90298f-6da9-4651-bca1-594ab01a3446" >
+		
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="fb06f4cf-57c7-41c2-87d5-698c85de2ec9" config-ref="MCP_Server" name="get-campaign-details">
+			<mcp:description ><![CDATA[This tool retrieves all currently active Salesforce Campaigns.
+
+IMPORTANT TOOL USAGE RULE:
+This tool must be called BEFORE the send-bulk-retention-email tool whenever the user wants to send retention emails.
+
+If multiple active campaigns are returned, the agent must:
+1. Present the campaigns to the user.
+2. Show the campaign Name and Description.
+3. Ask the user to select one campaign.
+4. Wait for the user's selection.
+5. Only after the user selects a campaign should the agent call send-bulk-retention-email.
+
+If exactly one active campaign is returned, the agent may automatically select it.
+
+If no active campaigns are returned, do not send any emails and inform the user that there are no active campaigns.
+
+Never invent a campaign or campaign ID.]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-gcd-001" message='"[get-campaign-details-flow] Tool invoked - fetching active campaigns"' />
+		<salesforce:query doc:name="Query" doc:id="60c2325b-f029-4548-a40f-95d874fc5bdf" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id, Name, IsActive, Description FROM Campaign WHERE IsActive = true]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-gcd-002" message='#["[get-campaign-details-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " active campaigns"]' />
+		<ee:transform doc:name="Transform Message" doc:id="481d84ca-c344-4a20-a83f-36507bc7a03d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

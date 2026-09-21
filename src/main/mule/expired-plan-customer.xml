@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="expired-plan-customer-flow" doc:id="73d54a32-b922-4ee6-bda6-baad93206946" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Expired Plans" doc:id="683f1555-70b4-4a1c-812e-af08dbe249c5" config-ref="MCP_Server" name="get-customer-with-expired-or-expiring-plans">
+			<mcp:description ><![CDATA[return the customer details with expired or expiring plan.]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "days": { "type": "number" }
+  },
+  "required": ["days"]
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-epc-001" message='#["[expired-plan-customer-flow] Tool invoked - days: " ++ (payload.days as String default "null")]' />
+		<salesforce:query doc:name="Query" doc:id="fd1e7205-b166-45aa-8e26-37d8a182a09b" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,
+    Name,
+    AccountNumber,
+    Email__c,
+    Joined_on__c,
+    tenure_year__c,
+    Last_Billing_Date__c,
+    Valid_Till__c,
+    Total_Revenue__c,
+    Autopay_Enabled__c,
+    Contact_Preferances__c,
+    Churn_Score__c,
+    Churn_Risk_Level__c
+FROM Account
+WHERE Valid_Till__c <= :endDate
+ORDER BY Valid_Till__c ASC]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[import * from dw::core::Periods
+output application/java
+---
+{
+  endDate: (now() + days(payload.days)) as Date
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-epc-002" message='#["[expired-plan-customer-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " records"]' />
+		<ee:transform doc:name="Transform Message" doc:id="34588036-c8bd-4256-a444-8b46b15d6e76">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

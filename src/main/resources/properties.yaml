@@ -1,0 +1,27 @@
+https:
+   host: "localhost"
+   port: "8081"
+   path: "helloworld"
+   
+salesforce:
+   consumer_key: "key"
+   consumer_secret: "secret"
+
+mcp:
+   name: "mule-salesforce-integration"
+   version: "1.0.0"
+   
+aws:
+   host: "email-smtp.ap-southeast-2.amazonaws.com"
+   port: "587"
+   user: "UserId"
+   password: "Password"
+   from_email: "email1"
+   to_email: "email2"
+
+gemini:
+   api.key: "key"
+   api.url: "url"
+   
+
+

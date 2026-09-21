@@ -1,0 +1,73 @@
+{
+  "basicConstraints": 17,
+  "criticalExtensionOIDs": [
+    "justo",
+    "tempor"
+  ],
+  "extendedKeyUsage": [
+    "sit",
+    "In"
+  ],
+  "extensions": [
+    {
+      "criticality": true,
+      "oid": "libero"
+    }
+  ],
+  "issuerAlternativeNames": [
+    {
+      "name": "Danial",
+      "type": 64
+    }
+  ],
+  "issuerDN": {
+    "commonName": "viverra",
+    "name": "Albertha"
+  },
+  "issuerUniqueID": [
+    false,
+    true
+  ],
+  "issuerX500Principal": {
+    "name": "Alissa"
+  },
+  "keyUsage": [
+    false,
+    true,
+    true
+  ],
+  "name": "Daniel",
+  "nonCriticalExtensionOIDs": [
+    "elit",
+    "aliquam"
+  ],
+  "notAfter": "2022-03-26",
+  "notBefore": "2025-06-16",
+  "publicKey": {
+    "algorithm": "convallis",
+    "modulus": 21,
+    "params": 96,
+    "publicKey": "at"
+  },
+  "serialNumber": 33,
+  "serialNumberObject": {
+    "serialNumber": 32
+  },
+  "sigAlgName": "mi",
+  "sigAlgOID": "viverra",
+  "subjectAlternativeNames": [
+    {
+      "name": "Chris",
+      "type": 36
+    }
+  ],
+  "subjectDN": {
+    "commonName": "sit",
+    "name": "Alexis"
+  },
+  "subjectX500Principal": {
+    "name": "Alpha"
+  },
+  "type": "consectetur",
+  "version": 45
+}

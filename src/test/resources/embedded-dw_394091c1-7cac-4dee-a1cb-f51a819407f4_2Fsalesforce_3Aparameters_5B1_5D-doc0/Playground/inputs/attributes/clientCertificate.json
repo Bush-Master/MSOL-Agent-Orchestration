@@ -1,0 +1,75 @@
+{
+  "basicConstraints": 55,
+  "criticalExtensionOIDs": [
+    "venenatis",
+    "libero",
+    "pretium"
+  ],
+  "extendedKeyUsage": [
+    "Aliquam",
+    "felis",
+    "libero"
+  ],
+  "extensions": [
+    {
+      "criticality": false,
+      "oid": "lectus"
+    }
+  ],
+  "issuerAlternativeNames": [
+    {
+      "name": "Alita",
+      "type": 92
+    }
+  ],
+  "issuerDN": {
+    "commonName": "In",
+    "name": "Alona"
+  },
+  "issuerUniqueID": [
+    true,
+    true,
+    true
+  ],
+  "issuerX500Principal": {
+    "name": "Agatha"
+  },
+  "keyUsage": [
+    true,
+    false
+  ],
+  "name": "Damon",
+  "nonCriticalExtensionOIDs": [
+    "nibh",
+    "ipsum"
+  ],
+  "notAfter": "2025-06-29",
+  "notBefore": "2023-04-22",
+  "publicKey": {
+    "algorithm": "felis",
+    "modulus": 85,
+    "params": 4,
+    "publicKey": "sit"
+  },
+  "serialNumber": 57,
+  "serialNumberObject": {
+    "serialNumber": 97
+  },
+  "sigAlgName": "eros",
+  "sigAlgOID": "sodales",
+  "subjectAlternativeNames": [
+    {
+      "name": "Clay",
+      "type": 89
+    }
+  ],
+  "subjectDN": {
+    "commonName": "dolor",
+    "name": "Alicia"
+  },
+  "subjectX500Principal": {
+    "name": "Aleisha"
+  },
+  "type": "ut",
+  "version": 41
+}

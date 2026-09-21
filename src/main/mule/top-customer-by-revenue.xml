@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd">
+	<flow name="top-customer-by-revenue-flow" doc:id="b829294a-d685-4d41-a3f9-91daf5261158" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Top Customer" doc:id="5ef610d6-d6cf-492a-b41a-bc66c9c5a1db" config-ref="MCP_Server" name="get-top-customer-by-revenue">
+			<mcp:description ><![CDATA[Return top n number of customer by revenue from salesforce data]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "num": {
+      "type": "number",
+      "description": "Input number"
+    }
+  },
+  "required": ["num"],
+  "additionalProperties": false
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-tcr-001" message='#["[top-customer-by-revenue-flow] Tool invoked - num: " ++ (payload.num as String default "null")]' />
+		<salesforce:query doc:name="Query" doc:id="394091c1-7cac-4dee-a1cb-f51a819407f4" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,
+    Name,
+    AccountNumber,
+    Email__c,
+    Joined_on__c,
+    tenure_year__c,
+    Valid_Till__c,
+    Last_Billing_Date__c,
+    Total_Revenue__c,
+    Autopay_Enabled__c,
+    Contact_Preferances__c,
+    Churn_Score__c,
+    Churn_Risk_Level__c
+FROM Account
+WHERE AccountNumber LIKE 'ACC%'
+ORDER BY Total_Revenue__c DESC
+LIMIT :num]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	num : payload.num
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-tcr-002" message='#["[top-customer-by-revenue-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " records"]' />
+		<ee:transform doc:name="Transform Message" doc:id="1336c57c-b11b-42af-bdb8-7052592da394" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

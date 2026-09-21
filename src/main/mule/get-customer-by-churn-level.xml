@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-customer-by-churn-level-flow" doc:id="55a56330-dc01-4028-bf0e-d972c67dd423" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="69f1b07c-a1d6-4a43-a9c2-fcaad3b7f4e0" config-ref="MCP_Server" name="get-customer-by-churn-level">
+			<mcp:description ><![CDATA[return the customer details accourding to Churn Risk Level]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "riskLevel": {
+      "type": "string",
+      "description": "Customer churn risk level",
+      "enum": [
+        "High Risk",
+        "Medium Risk",
+        "Low Risk"
+      ]
+    }
+  },
+  "required": ["riskLevel"]
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-gcl-001" message='#["[get-customer-by-churn-level-flow] Tool invoked - riskLevel: " ++ (payload.riskLevel default "null")]' />
+		<salesforce:query doc:name="Query" doc:id="3e458ce2-9e0d-4254-8cc4-283000f2bd11" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,
+    Name,
+    AccountNumber,
+    Email__c,
+    Joined_on__c,
+    tenure_year__c,
+    Last_Billing_Date__c,
+    Valid_Till__c,
+    Total_Revenue__c,
+    Autopay_Enabled__c,
+    Contact_Preferances__c,
+    Churn_Score__c,
+    Churn_Risk_Level__c
+FROM Account
+WHERE Churn_Risk_Level__c = :riskLevel AND AccountNumber LIKE 'ACC%'
+ORDER BY Churn_Score__c DESC]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	riskLevel : payload.riskLevel
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-gcl-002" message='#["[get-customer-by-churn-level-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " records"]' />
+		<ee:transform doc:name="Transform Message" doc:id="77d071b7-6882-41c5-aa93-1befa7fe02ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

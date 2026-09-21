@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<flow name="send-email-to-customer-flow" doc:id="684cc9e0-3c0c-474b-a49f-5edadb3353a7" >
+
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="4732dad0-a123-473b-9b98-998f11045ae5" config-ref="MCP_Server" name="send-email-to-admin">
+			<mcp:description ><![CDATA[sent the email to admin whenever invoked]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "customers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "Id": { "type": "string" },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "AccountNumber": { "type": "string" },
+          "Email__c": { "type": "string" },
+          "joined_on__c": { "type": "string" },
+          "tenure_years__c": { "type": "string" },
+          "Valid_Till__c": { "type": "string" },
+          "Total_Revenue__c": { "type": "string" },
+          "channel_preference__pc": { "type": "string" }
+        },
+        "required": ["Id", "LastName", "Email__c"],
+        "additionalProperties": false
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "properties": {
+        "Id": { "type": "string" },
+        "Name": { "type": "string" },
+        "IsActive": { "type": "boolean" },
+        "Description": { "type": "string" }
+      },
+      "required": ["Id", "Name"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["customers", "campaign"],
+  "additionalProperties": false
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text='"email sent successfully.."' />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-sec-001" message='#["[send-email-to-customer-flow] Tool invoked - customers: " ++ ((sizeOf(payload.customers as Array) as String) default "0") ++ ", campaign: " ++ ((payload.campaign.Name as String) default "null")]' />
+		<ee:transform doc:name="Transform Message" doc:id="4ad5fe35-550f-4070-a824-737bb6ad1c28" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log - Sending Email" doc:id="log-sec-002" message='"[send-email-to-customer-flow] Sending email to admin with customer retention data"' />
+		<email:send doc:name="Send email to admin" doc:id="b8c7032c-52c8-4f84-9043-b2b525fd4a8a" toAddresses="#[[p('aws.to_email')]]" config-ref="Email_SMTP" fromAddress="#[p('aws.from_email')]" subject="Details">
+			<email:body contentTransferEncoding="8BIT">
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Log - Email Sent" doc:id="log-sec-003" message='"[send-email-to-customer-flow] Email dispatched successfully to admin"' />
+	</flow>
+</mule>

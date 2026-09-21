@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<flow name="send-bulk-retention-email-flow"
+		doc:id="b1c2d3e4-f5a6-7890-bcde-f01234567891"
+		doc:name="Send Bulk Retention Email Flow"
+		doc:description="MCP tool flow that uses Gemini LLM to generate a personalized retention email template and sends individual emails to each customer via AWS SES">
+
+		<mcp:tool-listener
+			doc:name="MCP Server - Tool Listener"
+			doc:id="c2d3e4f5-a6b7-8901-cdef-012345678912"
+			config-ref="MCP_Server"
+			name="send-bulk-retention-email"
+			doc:description="MCP tool entry point accepting a list of customers and a campaign object to trigger bulk personalized email sending">
+			<mcp:description><![CDATA[Sends personalized retention emails to a list of customers using the selected Salesforce Campaign.
+
+IMPORTANT TOOL USAGE RULE:
+
+This tool must only be called AFTER the user has selected a campaign.
+
+Before calling this tool, the agent must call the get-campaign-details tool to retrieve the currently active campaigns.
+
+If multiple campaigns are returned:
+- Present the campaigns to the user.
+- Ask the user to select one.
+- Wait for the user's response.
+- Use the campaign selected by the user.
+
+If exactly one campaign is returned:
+- The agent may automatically select that campaign.
+
+The selected campaign must come directly from the get-campaign-details tool.
+
+Do not invent campaign IDs, campaign names, descriptions, or campaign details.
+
+The campaign object passed to this tool must contain:
+- Id
+- Name
+- IsActive
+- Description
+
+After the campaign has been selected, this tool generates a personalized retention email using Gemini and sends the email to each customer's Email__c address.]]></mcp:description>
+			<mcp:parameters-schema><![CDATA[{
+  "type": "object",
+  "properties": {
+    "customers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "Id": { "type": "string" },
+          "Name": { "type": "string" },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "AccountNumber": { "type": "string" },
+          "Email__c": { "type": "string" },
+          "Valid_Till__c": { "type": "string" },
+          "Total_Revenue__c": { "type": ["string", "number"] },
+          "Churn_Score__c": { "type": ["string", "number"] }
+        },
+        "required": ["Id", "Email__c"],
+        "additionalProperties": true
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "properties": {
+        "Id": { "type": "string" },
+        "Name": { "type": "string" },
+        "IsActive": { "type": "boolean" },
+        "Description": { "type": "string" }
+      },
+      "required": ["Id", "Name","Description"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["customers", "campaign"],
+  "additionalProperties": false
+}]]></mcp:parameters-schema>
+			<mcp:responses>
+				<mcp:text-tool-response-content text="#[payload]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+
+		<logger level="INFO"
+			doc:name="Log - Request Received"
+			doc:id="log-sbre-001"
+			doc:description="Logs the tool invocation with customer count and campaign name"
+			message='#["[send-bulk-retention-email-flow] Tool invoked - customers: " ++ (sizeOf(payload.customers as Array) as String default "0") ++ ", campaign: " ++ ((payload.campaign.Name as String) default "null")]' />
+
+		<set-variable
+			variableName="inputPayload"
+			value="#[payload]"
+			doc:name="Save Input Payload"
+			doc:id="d3e4f5a6-b7c8-9012-defa-123456789023"
+			doc:description="Preserves the original MCP tool input (customers array and campaign object) before payload is overwritten by the Gemini HTTP call" />
+
+		<ee:transform
+			doc:name="Build Gemini Prompt"
+			doc:id="e4f5a6b7-c8d9-0123-efab-234567890134"
+			doc:description="Constructs the Gemini API request body with a prompt asking the LLM to generate a retention email template using named placeholders">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  contents: [
+    {
+      parts: [
+        {
+          text: "You are a marketing email specialist. Generate a professional customer retention email body for the following campaign.\n\nUse EXACTLY these placeholders:\n- {{CUSTOMER_NAME}} for the customer name\n- {{VALID_TILL}} for subscription expiry date\n- {{CHURN_SCORE}} for churn score\n- {{CAMPAIGN_NAME}} for the campaign name\n\nCampaign Details:\nName: " ++ (vars.inputPayload.campaign.Name default "Retention Campaign") ++ "\nDescription: " ++ (vars.inputPayload.campaign.Description default "Special retention offer for our valued customers") ++ "\n\nWrite only the email body (no subject line). Keep it under 200 words. Be warm, professional, and persuasive. End with a clear call-to-action."
+        }
+      ]
+    }
+  ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+
+		<http:request
+			method="POST"
+			config-ref="Gemini_Request_Config"
+			path='/v1beta/models/gemini-3.6-flash:generateContent'
+			doc:name="Call Gemini LLM API"
+			doc:id="f5a6b7c8-d9e0-1234-fabc-345678901245"
+			doc:description="Sends the retention email prompt to Google Gemini 2.0 Flash and receives the AI-generated email template">
+			<http:body ><![CDATA[#[output application/json
+---
+payload]]]></http:body>
+			<http:query-params><![CDATA[#[{'key': p('gemini.api.key')}]]]></http:query-params>
+		</http:request>
+
+		<set-variable
+			variableName="emailTemplate"
+			value="#[payload.candidates[0].content.parts[0].text]"
+			doc:name="Extract Email Template"
+			doc:id="a6b7c8d9-e0f1-2345-abcd-456789012356"
+			doc:description="Extracts the AI-generated email template text from the Gemini API response" />
+
+		<logger level="INFO"
+			doc:name="Log - Template Generated"
+			doc:id="log-sbre-002"
+			doc:description="Confirms Gemini LLM successfully generated the email template before customer iteration begins"
+			message='"[send-bulk-retention-email-flow] Gemini email template generated successfully"' />
+
+		<foreach
+			collection="#[vars.inputPayload.customers]"
+			doc:name="For Each Customer"
+			doc:id="b7c8d9e0-f1a2-3456-bcde-567890123467"
+			doc:description="Iterates over each customer to personalize the Gemini template and dispatch individual retention emails">
+
+			<ee:transform
+				doc:name="Personalize Email Body"
+				doc:id="c8d9e0f1-a2b3-4567-cdef-678901234578"
+				doc:description="Replaces named placeholders in the Gemini template with real customer field values to produce a personalized email body">
+				<ee:variables>
+					<ee:set-variable variableName="emailBody"><![CDATA[%dw 2.0
+output text/plain
+var customerName = payload.Name default ((payload.FirstName default "") ++ " " ++ (payload.LastName default ""))
+//var riskLevel    = payload.Churn_Risk_Level__c default "N/A"
+var validTill    = payload.Valid_Till__c as String default "N/A"
+var churnScore   = payload.Churn_Score__c as String default "N/A"
+var campaignName = vars.inputPayload.campaign.Name default "Campaign"
+---
+vars.emailTemplate
+  replace "{{CUSTOMER_NAME}}" with customerName
+//  replace "{{RISK_LEVEL}}"    with riskLevel
+  replace "{{VALID_TILL}}"    with validTill
+  replace "{{CHURN_SCORE}}"   with churnScore
+  replace "{{CAMPAIGN_NAME}}" with campaignName]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+
+			<logger level="INFO"
+				doc:name="Log - Sending Email"
+				doc:id="log-sbre-003"
+				doc:description="Logs the customer name and email address before sending the personalized retention email"
+			message='#["[send-bulk-retention-email-flow] Sending email to: " ++ (payload.Name default "unknown") ++ " (" ++ (payload.Email__c default "no-email") ++ ")"]' />
+			<logger level="INFO" doc:name="Logger" doc:id="167ad2a7-3d8f-4c68-9907-e76273af6535" message="#[vars.emailBody]"/>
+
+			
+
+		</foreach>
+
+		<ee:transform
+			doc:name="Set Success Response"
+			doc:id="e0f1a2b3-c4d5-6789-efab-890123456790"
+			doc:description="Sets the MCP tool response as a summary string indicating how many emails were sent and for which campaign">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"Emails sent to " ++ (sizeOf(vars.inputPayload.customers) as String) ++ " customers for campaign: " ++ (vars.inputPayload.campaign.Name default "Campaign")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+
+		<error-handler>
+			<on-error-propagate
+				type="ANY"
+				doc:name="On Error Propagate"
+				doc:id="f1a2b3c4-d5e6-7890-fabc-901234567801"
+				doc:description="Catches any error during Gemini API call or email sending and propagates it with an error log">
+				<logger level="ERROR"
+					doc:name="Log - Error"
+					doc:id="log-sbre-004"
+					doc:description="Logs the full error description when the flow encounters an unexpected failure"
+					message='#["[send-bulk-retention-email-flow] Error: " ++ error.description]' />
+			</on-error-propagate>
+		</error-handler>
+
+	</flow>
+
+</mule>

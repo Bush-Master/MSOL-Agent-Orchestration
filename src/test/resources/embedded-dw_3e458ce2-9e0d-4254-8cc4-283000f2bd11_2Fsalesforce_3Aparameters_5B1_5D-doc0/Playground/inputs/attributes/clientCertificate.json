@@ -1,0 +1,72 @@
+{
+  "basicConstraints": 40,
+  "criticalExtensionOIDs": [
+    "elit",
+    "justo"
+  ],
+  "extendedKeyUsage": [
+    "Fusce",
+    "justo"
+  ],
+  "extensions": [
+    {
+      "criticality": false,
+      "oid": "nibh"
+    }
+  ],
+  "issuerAlternativeNames": [
+    {
+      "name": "Allen",
+      "type": 77
+    }
+  ],
+  "issuerDN": {
+    "commonName": "risus",
+    "name": "Alison"
+  },
+  "issuerUniqueID": [
+    false,
+    true
+  ],
+  "issuerX500Principal": {
+    "name": "Chuck"
+  },
+  "keyUsage": [
+    true,
+    true
+  ],
+  "name": "Adelia",
+  "nonCriticalExtensionOIDs": [
+    "at",
+    "consectetur"
+  ],
+  "notAfter": "2023-09-24",
+  "notBefore": "2021-10-15",
+  "publicKey": {
+    "algorithm": "Aliquam",
+    "modulus": 4,
+    "params": 35,
+    "publicKey": "felis"
+  },
+  "serialNumber": 12,
+  "serialNumberObject": {
+    "serialNumber": 92
+  },
+  "sigAlgName": "adipiscing",
+  "sigAlgOID": "eros",
+  "subjectAlternativeNames": [
+    {
+      "name": "Dante",
+      "type": 45
+    }
+  ],
+  "subjectDN": {
+    "commonName": "convallis",
+    "name": "An"
+  },
+  "subjectX500Principal": {
+    "name": "Abraham"
+  },
+  "type": "mi",
+  "version": 32
+}

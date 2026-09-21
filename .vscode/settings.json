@@ -1,0 +1,8 @@
+{
+  "files.exclude": {
+    "target": true,
+    ".mule": true,
+    ".classpath": true,
+    ".project": true
+  }
+}

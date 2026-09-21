@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-customer-by-churn-score-flow" doc:id="25f54dc9-67cb-4824-b39a-b014302156bc" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Churn Score" doc:id="edc281e7-92f0-4935-8d36-073000059411" config-ref="MCP_Server" name="get-customer-by-churn-score">
+			<mcp:description ><![CDATA[return the details of custumer accourding to churn score asked.]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "score": { "type": "number" }
+  },
+  "required": ["score"]
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-gcs-001" message='#["[get-customer-by-churn-score-flow] Tool invoked - score: " ++ (payload.score as String default "null")]' />
+		<salesforce:query doc:name="Query" doc:id="79b0408e-833d-4610-8a78-36f37880f344" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,
+    Name,
+    AccountNumber,
+    Email__c,
+    Joined_on__c,
+    tenure_year__c,
+    Valid_Till__c,
+    Last_Billing_Date__c,
+    Total_Revenue__c,
+    Autopay_Enabled__c,
+    Contact_Preferances__c,
+    Churn_Score__c,
+    Churn_Risk_Level__c
+FROM Account
+WHERE AccountNumber LIKE 'ACC%'
+AND Churn_Score__c >= :score
+ORDER BY Churn_Score__c DESC]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	score : payload.score
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-gcs-002" message='#["[get-customer-by-churn-score-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " records"]' />
+		<ee:transform doc:name="Transform Message" doc:id="186b3532-9abc-4ec9-9a7c-f42e5787116b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

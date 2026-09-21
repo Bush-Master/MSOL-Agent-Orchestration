@@ -1,0 +1,76 @@
+{
+  "basicConstraints": 26,
+  "criticalExtensionOIDs": [
+    "ipsum",
+    "pretium",
+    "Aliquam"
+  ],
+  "extendedKeyUsage": [
+    "amet",
+    "eget",
+    "lorem"
+  ],
+  "extensions": [
+    {
+      "criticality": true,
+      "oid": "Fusce"
+    }
+  ],
+  "issuerAlternativeNames": [
+    {
+      "name": "Altagracia",
+      "type": 80
+    }
+  ],
+  "issuerDN": {
+    "commonName": "libero",
+    "name": "Carlos"
+  },
+  "issuerUniqueID": [
+    false,
+    true,
+    false
+  ],
+  "issuerX500Principal": {
+    "name": "Burton"
+  },
+  "keyUsage": [
+    false,
+    true
+  ],
+  "name": "Alfred",
+  "nonCriticalExtensionOIDs": [
+    "risus",
+    "sodales",
+    "molestie"
+  ],
+  "notAfter": "2023-08-14",
+  "notBefore": "2022-10-07",
+  "publicKey": {
+    "algorithm": "amet",
+    "modulus": 40,
+    "params": 85,
+    "publicKey": "ipsum"
+  },
+  "serialNumber": 38,
+  "serialNumberObject": {
+    "serialNumber": 61
+  },
+  "sigAlgName": "viverra",
+  "sigAlgOID": "felis",
+  "subjectAlternativeNames": [
+    {
+      "name": "Chadwick",
+      "type": 78
+    }
+  ],
+  "subjectDN": {
+    "commonName": "dolor",
+    "name": "Alease"
+  },
+  "subjectX500Principal": {
+    "name": "Agustina"
+  },
+  "type": "lorem",
+  "version": 54
+}

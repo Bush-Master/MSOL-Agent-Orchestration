@@ -1,0 +1,75 @@
+{
+  "basicConstraints": 22,
+  "criticalExtensionOIDs": [
+    "ac",
+    "aliquam"
+  ],
+  "extendedKeyUsage": [
+    "risus",
+    "ut",
+    "viverra"
+  ],
+  "extensions": [
+    {
+      "criticality": true,
+      "oid": "Fusce"
+    }
+  ],
+  "issuerAlternativeNames": [
+    {
+      "name": "Curtis",
+      "type": 86
+    }
+  ],
+  "issuerDN": {
+    "commonName": "mi",
+    "name": "Adelina"
+  },
+  "issuerUniqueID": [
+    true,
+    true,
+    true
+  ],
+  "issuerX500Principal": {
+    "name": "Ana"
+  },
+  "keyUsage": [
+    false,
+    false,
+    false
+  ],
+  "name": "Aline",
+  "nonCriticalExtensionOIDs": [
+    "dui",
+    "ac"
+  ],
+  "notAfter": "2022-12-09",
+  "notBefore": "2024-11-12",
+  "publicKey": {
+    "algorithm": "consectetur",
+    "modulus": 87,
+    "params": 43,
+    "publicKey": "ipsum"
+  },
+  "serialNumber": 68,
+  "serialNumberObject": {
+    "serialNumber": 14
+  },
+  "sigAlgName": "sit",
+  "sigAlgOID": "consectetur",
+  "subjectAlternativeNames": [
+    {
+      "name": "Daniel",
+      "type": 91
+    }
+  ],
+  "subjectDN": {
+    "commonName": "justo",
+    "name": "Alix"
+  },
+  "subjectX500Principal": {
+    "name": "Al"
+  },
+  "type": "sodales",
+  "version": 47
+}
