@@ -1,0 +1,52 @@
+{
+  "customers": [
+    {
+      "Id": "001000000000001AAA",
+      "Name": "John Smith",
+      "FirstName": "John",
+      "LastName": "Smith",
+      "AccountNumber": "ACC000001",
+      "Email__c": "john.smith@example.com",
+      "Phone__c": "+14155550001",
+      "Contact_Preference__c": "Email",
+      "Valid_Till__c": "2026-10-31",
+      "Total_Revenue__c": 2450.75,
+      "Churn_Score__c": 82
+    },
+    {
+      "Id": "001000000000002AAA",
+      "Name": "Sarah Johnson",
+      "FirstName": "Sarah",
+      "LastName": "Johnson",
+      "AccountNumber": "ACC000002",
+      "Email__c": "sarah.johnson@example.com",
+      "Phone__c": "+14155550002",
+      "Contact_Preference__c": "WhatsApp",
+      "Valid_Till__c": "2026-11-15",
+      "Total_Revenue__c": 1890.5,
+      "Churn_Score__c": 76
+    },
+    {
+      "Id": "001000000000003AAA",
+      "Name": "Michael Brown",
+      "FirstName": "Michael",
+      "LastName": "Brown",
+      "AccountNumber": "ACC000003",
+      "Email__c": "michael.brown@example.com",
+      "Phone__c": "+14155550003",
+      "Contact_Preference__c": "SMS",
+      "Valid_Till__c": "2026-12-01",
+      "Total_Revenue__c": 3200.25,
+      "Churn_Score__c": 91
+    }
+  ],
+  "campaign": {
+    "Id": "701000000000001AAA",
+    "Name": "Customer Retention Campaign",
+    "IsActive": true,
+    "Description": "Targeted retention campaign for customers with high churn risk"
+  },
+  "emailTemplate": "Hi {{customerName}}, your current plan is valid until {{validTill}}. We value your relationship with us and would like to offer you a special retention offer.",
+  "whatsappMessageTemplate": "Hi {{customerName}}, your plan is valid until {{validTill}}. We have a special offer for you. Please let us know if you are interested.",
+  "smsMessageTemplate": "Hi {{customerName}}, your plan is valid until {{validTill}}. We have a special retention offer for you."
+}

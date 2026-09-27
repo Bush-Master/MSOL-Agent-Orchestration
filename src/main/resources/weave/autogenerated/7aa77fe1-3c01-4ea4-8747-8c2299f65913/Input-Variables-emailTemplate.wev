@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_7aa77fe1_3c01_4ea4_8747_8c2299f65913_Input_Variables_emailTemplate = Any
+

@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd">
+	
+	<flow name="main-flowFlow" doc:id="ede111bb-f72b-4add-a390-d12afe295efb" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="0a73771f-2738-468c-bb12-9d49a036a884" doc:description="MCP tool entry point accepting a list of customers and a campaign object to trigger bulk personalized email sending" config-ref="MCP_Server" name="send-bulk-retention-email" >
+			<mcp:description ><![CDATA[Sends personalized retention messages to a list of customers using the selected Salesforce Campaign.
+
+IMPORTANT TOOL USAGE RULE:
+
+This tool must only be called AFTER the user has selected a campaign.
+
+Before calling this tool, the agent must call the get-campaign-details tool to retrieve the currently active campaigns.
+
+If multiple campaigns are returned:
+
+* Present the campaigns to the user.
+* Ask the user to select one.
+* Wait for the user's response.
+* Use the campaign selected by the user.
+
+If exactly one campaign is returned:
+
+* The agent may automatically select that campaign.
+
+The selected campaign must come directly from the get-campaign-details tool.
+
+Do not invent campaign IDs, campaign names, descriptions, or campaign details.
+
+The campaign object passed to this tool must contain:
+
+* Id
+* Name
+* IsActive
+* Description
+
+
+IMPORTANT TEMPLATE GENERATION AND CONFIRMATION WORKFLOW:
+
+1. After the user selects the campaign, generate an email template based on the selected campaign details.
+
+2. Present the generated email template to the user and ask the user to confirm it.
+
+3. If the user requests any changes to the email template:
+
+   * Identify the requested changes.
+   * Regenerate or update the email template according to the user's feedback.
+   * Present the updated email template to the user.
+   * Ask for confirmation again.
+   * Do not proceed until the user confirms the email template.
+
+4. After the user confirms the email template, generate a WhatsApp message template based on the selected campaign and the confirmed email template/campaign context.
+
+5. Present the generated WhatsApp message template to the user and ask the user to confirm it.
+
+6. If the user requests any changes to the WhatsApp message template:
+
+   * Identify the requested changes.
+   * Regenerate or update the WhatsApp message template according to the user's feedback.
+   * Present the updated WhatsApp message template to the user.
+   * Ask for confirmation again.
+   * Do not proceed until the user confirms the WhatsApp message template.
+
+7. After the WhatsApp template is confirmed, generate an SMS message template based on the selected campaign and the confirmed email and WhatsApp templates/campaign context.
+
+8. Present the generated SMS message template to the user and ask the user to confirm it.
+
+9. If the user requests any changes to the SMS message template:
+
+   * Identify the requested changes.
+   * Regenerate or update the SMS message template according to the user's feedback.
+   * Present the updated SMS message template to the user.
+   * Ask for confirmation again.
+   * Do not proceed until the user confirms the SMS message template.
+
+10. Only after the email template, WhatsApp message template, and SMS message template have all been confirmed by the user, proceed with processing the customers.
+
+11. Do not send any email, WhatsApp message, or SMS before the corresponding template has been confirmed by the user.
+
+12. The final emailTemplate, whatsappMessageTemplate, and smsMessageTemplate passed to the processing flows must be exactly the versions confirmed by the user.
+
+
+IMPORTANT PLACEHOLDER RULES:
+
+When generating the email, WhatsApp, or SMS message template, the agent may use the following customer-specific placeholders:
+
+* {{NAME}} — Customer name
+* {{ACCOUNTNUMBER}} — Customer account number
+* {{PHONENUMBER}} — Customer phone number
+* {{EMAIL}} — Customer email address
+
+Placeholder usage rules:
+
+1. Only include a placeholder if that customer information is actually required or relevant to the message.
+
+2. Do not include all placeholders by default.
+
+3. If a field is not required for the message, do not mention its placeholder or corresponding information.
+
+4. The agent must preserve the exact placeholder format:
+
+   * {{NAME}}
+   * {{ACCOUNTNUMBER}}
+   * {{PHONENUMBER}}
+   * {{EMAIL}}
+
+5. During customer processing, replace each placeholder with the corresponding customer's actual value.
+
+6. If a placeholder is not present in the approved template, its corresponding customer field must not be added to the message.
+
+7. The email, WhatsApp, and SMS templates may use different placeholders depending on the communication requirements.
+
+8. The final approved template must be used exactly as confirmed by the user, except for replacing the included placeholders with the customer's actual values.
+
+Examples:
+
+* If the message only requires the customer's name, use {{NAME}} only.
+
+* If the message requires the customer's name and account number, use {{NAME}} and {{ACCOUNTNUMBER}}.
+
+* Do not add {{PHONENUMBER}} or {{EMAIL}} unless they are required by the approved message.
+
+
+CUSTOMER PROCESSING RULE:
+
+Customers must be processed according to their Contact_Preference__c field:
+
+* If Contact_Preference__c is "Email", send the customer through the email processing flow using the confirmed email template.
+
+* If Contact_Preference__c is "WhatsApp", send the customer through the WhatsApp processing flow using the confirmed WhatsApp message template.
+
+* If Contact_Preference__c is "SMS", send the customer through the SMS processing flow using the confirmed SMS message template.
+
+The customer must only be sent through the flow corresponding to their Contact_Preference__c.
+
+Do not add or change a customer's communication preference.
+
+Do not send any communication before all three templates have been confirmed by the user.
+
+The final emailTemplate, whatsappMessageTemplate, and smsMessageTemplate passed to the processing flows must be the versions confirmed by the user.
+
+Do not modify the selected campaign details.
+
+Campaign Id, Name, IsActive, and Description must come directly from get-campaign-details.]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "type": "object",
+  "properties": {
+    "customers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "FirstName": {
+            "type": "string"
+          },
+          "LastName": {
+            "type": "string"
+          },
+          "AccountNumber": {
+            "type": "string"
+          },
+          "Email__c": {
+            "type": "string"
+          },
+          "Phone__c": {
+            "type": "string"
+          },
+          "Contact_Preference__c": {
+            "type": "string",
+            "enum": [
+              "Email",
+              "Whatsapp",
+              "SMS"
+            ]
+          },
+          "Valid_Till__c": {
+            "type": "string"
+          },
+          "Total_Revenue__c": {
+            "type": [
+              "string",
+              "number"
+            ]
+          },
+          "Churn_Score__c": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "Id",
+          "Contact_Preference__c"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "IsActive": {
+          "type": "boolean"
+        },
+        "Description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Id",
+        "Name"
+      ],
+      "additionalProperties": false
+    },
+    "emailTemplate": {
+      "type": "string"
+    },
+    "whatsappMessageTemplate": {
+      "type": "string"
+    },
+    "smsMessageTemplate": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "customers",
+    "campaign",
+    "emailTemplate",
+    "whatsappMessageTemplate",
+    "smsMessageTemplate"
+  ],
+  "additionalProperties": false
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Logger - send detail initiated" doc:id="6cd40727-fc0b-4b3a-9b75-97231bd23255" message="FLOW INITIATED -- SENT DETAILS"/>
+		<set-variable value="#[payload.emailTemplate]" doc:name="Set Variable -- emailTemplete" doc:id="bc630cfd-60b4-4dd4-b031-01a37120f03f" variableName="emailTemplete"/>
+		<set-variable value="#[payload.whatsappMessageTemplate]" doc:name="Set Variable -- whatsappTemplete" doc:id="252a7fab-880f-4fe3-bc42-4d5a12528651" variableName="whatsappTemplete"/>
+		<set-variable value="#[payload.smsMessageTemplate]" doc:name="Set Variable -- smsTemplete" doc:id="86e61426-27f8-48de-bb92-49f3df4daf2d" variableName="smsTemplete"/>
+		<foreach doc:name="For Each -- customer" doc:id="339d7502-1b25-4625-8e95-2f48a87fde93" collection="#[payload.customers]">
+			<choice doc:name="Choice -- sagregatingCustomerDetails" doc:id="3c9a00d5-1184-4096-8374-c3c80b9c24cc" >
+				<when expression='#[payload.Contact_Preference__c == "Email"]'>
+					<logger level="INFO" doc:name="Logger" doc:id="f1992e34-ca5a-484a-b4cb-9719a07155c1" message='#[{"Email" : payload}]'/>
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="1facff3d-5033-4012-805b-286c7800a7b6" variableName="actualMessage"/>
+					<logger level="INFO" doc:name="Logger" doc:id="57c1000b-3559-44f9-b984-b02a0a20b251" message="#[vars.actualMessage]"/>
+					<email:send doc:name="Send -- email request sent" doc:id="aab8dea8-f231-49a0-8164-e65ce1904d14" config-ref="Email_SMTP_AWS" toAddresses="#[[payload.Email__c]]" fromAddress="${aws.fromEmail}" subject="Test Email">
+						<email:body >
+							<email:content ><![CDATA[#[%dw 2.0
+output text/plain
+---
+vars.actualMessage]]]></email:content>
+						</email:body>
+					</email:send>
+					<logger level="INFO" doc:name="Logger -- Email SENT" doc:id="2b843a68-eb6a-4365-aa29-e49aebe1b29f" message='#["Email Sent to : " ++ payload.Email__c ++ "."]'/>
+				</when>
+				<when expression='#[payload.Contact_Preference__c == "SMS"]'>
+					<logger level="INFO" doc:name="Logger " doc:id="0e32edea-fecb-4718-8148-ecc00e10401c" message='#[{"SMS" : payload}]'/>
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="e74fdad4-9337-4ac3-ac61-c39ace131dd7" variableName="actualMessage" />
+					<logger level="INFO" doc:name="Logger" doc:id="229d0a9c-a65d-4a2e-ab12-2b6018d88a44" message="#[vars.actualMessage]" />
+					<http:request doc:name="Request -- Twilio SMS Request" doc:id="98930359-98f6-4c01-a6b9-99b4780f1c11" config-ref="HTTP_Request_config_twilio" method="POST" path="/2010-04-01/Accounts/${twilio.username}/Messages.json">
+						<http:body ><![CDATA[#[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+    To: payload.Phone__c,
+    From: p('twilio.fromNumber'),
+    Body: vars.actualMessage
+}]]]></http:body>
+						<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+					</http:request>
+					<logger level="INFO" doc:name="Logger -- SMS SENT" doc:id="b5a041b6-9767-474b-ba95-1190a53f56f4" message="SMS SENT"/>
+				</when>
+				<when expression='#[payload.Contact_Preference__c == "Whatsapp"]'>
+					<logger level="ERROR" doc:name="Logger" doc:id="82740f6a-8ef5-4fd6-be30-64d26eb7141f" message='#[{"Whatsapp" : payload}]'/>
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="0435a396-452a-437a-90c1-ca9b9fea0ce8" variableName="actualMessage" />
+					<logger level="INFO" doc:name="Logger" doc:id="93b84639-cbd4-4fe0-9eaf-8e1340d0605b" message="#[vars.actualMessage]" />
+					<http:request doc:name="Request -- meta whatsapp request" doc:id="e957e06e-e49a-4071-9615-c07d8849807c" config-ref="HTTP_Request_config_meta" method="POST" path="/v25.0/${meta.phoneID}/messages">
+						<http:body ><![CDATA[#[{
+  "messaging_product": "whatsapp",
+  "to": payload.Phone__c,
+  "type": "template",
+  "template": {
+    "name": "jaspers_market_plain_text_v1",
+    "language": {
+      "code": "en_US"
+    }
+  }
+}]]]></http:body>
+						<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : p('meta.authorization'),
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					</http:request>
+					<logger level="INFO" doc:name="Logger -- Whatsapp Message Sent" doc:id="fa0dbf1c-f69c-473b-ad1d-f7ff6fe19a97" message="Whatsapp Message Sent"/>
+				</when>
+			</choice>
+		</foreach>
+	</flow>
+</mule>

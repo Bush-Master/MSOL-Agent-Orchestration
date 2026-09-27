@@ -38,7 +38,7 @@ Never invent a campaign or campaign ID.]]></mcp:description>
 		</mcp:tool-listener>
 		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-gcd-001" message='"[get-campaign-details-flow] Tool invoked - fetching active campaigns"' />
 		<salesforce:query doc:name="Query" doc:id="60c2325b-f029-4548-a40f-95d874fc5bdf" config-ref="Salesforce_Config">
-			<salesforce:salesforce-query ><![CDATA[SELECT Id, Name, IsActive, Description FROM Campaign WHERE IsActive = true]]></salesforce:salesforce-query>
+			<salesforce:salesforce-query ><![CDATA[SELECT Id, Name, IsActive, Description FROM Campaign WHERE IsActive = true limit 5]]></salesforce:salesforce-query>
 		</salesforce:query>
 		<logger level="INFO" doc:name="Log - Query Result" doc:id="log-gcd-002" message='#["[get-campaign-details-flow] Salesforce query returned " ++ (sizeOf(payload) as String) ++ " active campaigns"]' />
 		<ee:transform doc:name="Transform Message" doc:id="481d84ca-c344-4a20-a83f-36507bc7a03d" >

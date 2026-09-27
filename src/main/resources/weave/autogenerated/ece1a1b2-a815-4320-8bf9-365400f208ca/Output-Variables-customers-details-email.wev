@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_ece1a1b2_a815_4320_8bf9_365400f208ca_Output_Variables_customers_details_email = Any
+

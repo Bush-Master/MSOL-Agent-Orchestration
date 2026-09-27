@@ -8,21 +8,33 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d7239fd0-b7a2-410e-866d-4e2e840b0ed5" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
 	<configuration-properties doc:name="Configuration properties" doc:id="4f31bb07-1d07-4035-90f8-0d90d34c0bc8" file="properties.yaml" />
 	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="7abb3b5b-2044-4594-b827-4d2b6611b125" >
-		<salesforce:basic-connection username="gulshan29@protonmail.com2026_07_28_0-1-13.demo" password="Gulshan@29" url="https://login.salesforce.com/services/Soap/u/64.0" />
+		<salesforce:basic-connection username="${salesforce.username}" password="${salesforce.password}" url="https://login.salesforce.com/services/Soap/u/64.0" />
 	</salesforce:sfdc-config>
 	<mcp:server-config name="MCP_Server" doc:name="MCP Server" doc:id="8a609db9-d0bc-470b-a55d-ea9571300192" serverName="${mcp.name}" serverVersion="${mcp.version}" > 
-		<mcp:streamable-http-server-connection listenerConfig="HTTP_Listener_config" responseContentType="JSON" requestTimeoutUnit="MINUTES"/>
+		<mcp:streamable-http-server-connection listenerConfig="HTTP_Listener_config_8081" responseContentType="JSON" requestTimeoutUnit="MINUTES"/>
 	</mcp:server-config>
-	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="6a224d7f-9eaa-4d3e-a8de-b959df39f3a4" >
-		<email:smtp-connection host="${aws.host}" port="${aws.port}" user="${aws.user}" password="${aws.password}"/>
+	<http:listener-config name="HTTP_Listener_config_8081" doc:name="HTTP Listener config" doc:id="ab798e5d-9476-47b9-a898-6d571bf91122" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<email:smtp-config name="Email_SMTP_AWS" doc:name="Email SMTP" doc:id="ae306015-693f-4150-83e3-9ca5d8ec7991" >
+		<email:smtp-connection host="${aws.host}" port="${aws.port}" user="${aws.user}" password="${aws.password}" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+				<email:property key="mail.smtp.starttls.required" value="true" />
+			</email:properties>
+		</email:smtp-connection>
 	</email:smtp-config>
-	<http:request-config name="Gemini_Request_Config" doc:name="Gemini Request Config" doc:id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" responseTimeout="60000" >
-		<http:request-connection protocol="HTTPS" host="${gemini.api.url}" port="443" />
+	<http:request-config name="HTTP_Request_config_twilio" doc:name="HTTP Request config" doc:id="4e1ffadc-d4ab-4e5a-9145-9cc81f5693be" >
+		<http:request-connection protocol="HTTPS" host="${twilio.host}" port="${twilio.port}" >
+			<http:authentication >
+				<http:basic-authentication username="${twilio.username}" password="${twilio.password}" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_config_meta" doc:name="HTTP Request config" doc:id="81b305fe-2df6-4a76-8bd9-dde195b955b1" >
+		<http:request-connection protocol="HTTPS" host="${meta.host}" port="${meta.port}" />
 	</http:request-config>
 
 </mule>
