@@ -7,8 +7,8 @@ http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="get-customer-by-churn-level-flow" doc:id="55a56330-dc01-4028-bf0e-d972c67dd423" >
-		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="69f1b07c-a1d6-4a43-a9c2-fcaad3b7f4e0" config-ref="MCP_Server" name="get-customer-by-churn-level">
-			<mcp:description ><![CDATA[return the customer details accourding to Churn Risk Level]]></mcp:description>
+		<!-- [STUDIO:"MCP Server - Tool Listener"]<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="69f1b07c-a1d6-4a43-a9c2-fcaad3b7f4e0" config-ref="MCP_Server" name="get-customer-by-churn-level">
+			<mcp:description ><![CDATA[return the customer details accourding to Churn Risk Level&#93;&#93;></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {
@@ -19,15 +19,15 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
         "High Risk",
         "Medium Risk",
         "Low Risk"
-      ]
+      &#93;
     }
   },
-  "required": ["riskLevel"]
-}]]></mcp:parameters-schema>
+  "required": ["riskLevel"&#93;
+}&#93;&#93;></mcp:parameters-schema>
 			<mcp:responses >
-				<mcp:text-tool-response-content text="#[payload.^raw]" />
+				<mcp:text-tool-response-content text="#[payload.^raw&#93;" />
 			</mcp:responses>
-		</mcp:tool-listener>
+		</mcp:tool-listener> [STUDIO] -->
 		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-gcl-001" message='#["[get-customer-by-churn-level-flow] Tool invoked - riskLevel: " ++ (payload.riskLevel default "null")]' />
 		<salesforce:query doc:name="Query" doc:id="3e458ce2-9e0d-4254-8cc4-283000f2bd11" config-ref="Salesforce_Config">
 			<salesforce:salesforce-query ><![CDATA[SELECT Id,

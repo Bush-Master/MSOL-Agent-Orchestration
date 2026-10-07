@@ -9,7 +9,14 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd">
 	<flow name="top-customer-by-revenue-flow" doc:id="b829294a-d685-4d41-a3f9-91daf5261158" >
 		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Top Customer" doc:id="5ef610d6-d6cf-492a-b41a-bc66c9c5a1db" config-ref="MCP_Server" name="get-top-customer-by-revenue">
-			<mcp:description ><![CDATA[Return top n number of customer by revenue from salesforce data]]></mcp:description>
+			<mcp:description ><![CDATA[Retrieve the top N customers by total revenue from Salesforce.
+
+The customers are sorted by Total Revenue in descending order, with the highest-revenue customers returned first. The input parameter "num" specifies the maximum number of customers to return.
+
+The response always contains the available customer records in a table format with the following columns:
+Customer ID, Customer Name, Account Number, Email, Joined Date, Tenure (Years), Valid Till, Last Billing Date, Total Revenue, Autopay Enabled, Contact Preference, Churn Score, and Churn Risk Level.
+
+If fewer than N matching customers are available, all available matching customers are returned.]]></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {
@@ -27,19 +34,16 @@ http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/
 		</mcp:tool-listener>
 		<logger level="INFO" doc:name="Log - Request Received" doc:id="log-tcr-001" message='#["[top-customer-by-revenue-flow] Tool invoked - num: " ++ (payload.num as String default "null")]' />
 		<salesforce:query doc:name="Query" doc:id="394091c1-7cac-4dee-a1cb-f51a819407f4" config-ref="Salesforce_Config">
-			<salesforce:salesforce-query ><![CDATA[SELECT Id,
+			<salesforce:salesforce-query ><![CDATA[SELECT
+    Id,
     Name,
     AccountNumber,
     Email__c,
-    Joined_on__c,
-    tenure_year__c,
+    Phone,
     Valid_Till__c,
-    Last_Billing_Date__c,
     Total_Revenue__c,
-    Autopay_Enabled__c,
-    Contact_Preferances__c,
     Churn_Score__c,
-    Churn_Risk_Level__c
+    Contact_Preferances__c
 FROM Account
 WHERE AccountNumber LIKE 'ACC%'
 ORDER BY Total_Revenue__c DESC

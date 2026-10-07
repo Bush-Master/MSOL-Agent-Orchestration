@@ -8,7 +8,18 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="get-customer-by-churn-score-flow" doc:id="25f54dc9-67cb-4824-b39a-b014302156bc" >
 		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Churn Score" doc:id="edc281e7-92f0-4935-8d36-073000059411" config-ref="MCP_Server" name="get-customer-by-churn-score">
-			<mcp:description ><![CDATA[return the details of custumer accourding to churn score asked.]]></mcp:description>
+			<mcp:description ><![CDATA[Retrieve Salesforce customer accounts whose Churn Score is greater than or equal to the specified score threshold.
+
+The "score" parameter represents the minimum Churn Score to include in the results. For example, if score is 70, the tool returns all customers with a Churn Score of 70 or higher.
+
+Customers are ordered by Churn Score in descending order, so customers with the highest churn scores appear first.
+
+The response always contains the available customer records in a table format with the following columns:
+Customer ID, Customer Name, Account Number, Email, Joined Date, Tenure (Years), Valid Till, Last Billing Date, Total Revenue, Autopay Enabled, Contact Preference, Churn Score, and Churn Risk Level.
+
+Only Salesforce Account records with an Account Number starting with "ACC" are included.
+
+If no customers meet the specified Churn Score threshold, the tool returns an empty result.]]></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {

@@ -10,23 +10,29 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<flow name="get-campaign-details-flow" doc:id="1a90298f-6da9-4651-bca1-594ab01a3446" >
 		
 		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="fb06f4cf-57c7-41c2-87d5-698c85de2ec9" config-ref="MCP_Server" name="get-campaign-details">
-			<mcp:description ><![CDATA[This tool retrieves all currently active Salesforce Campaigns.
+			<mcp:description ><![CDATA[Retrieve the currently active Salesforce Campaigns available for customer retention activities.
+
+The tool returns up to 5 active campaigns, including the Campaign ID, Campaign Name, Active status, and Campaign Description.
 
 IMPORTANT TOOL USAGE RULE:
-This tool must be called BEFORE the send-bulk-retention-email tool whenever the user wants to send retention emails.
 
-If multiple active campaigns are returned, the agent must:
-1. Present the campaigns to the user.
-2. Show the campaign Name and Description.
+This tool must be called BEFORE the send-bulk-retention-email tool whenever the user requests to send retention emails.
+
+When multiple active campaigns are returned:
+1. Present all returned campaigns to the user.
+2. Display the Campaign Name and Description for each campaign.
 3. Ask the user to select one campaign.
 4. Wait for the user's selection.
-5. Only after the user selects a campaign should the agent call send-bulk-retention-email.
+5. Only after the user selects a campaign, call send-bulk-retention-email using the selected Campaign ID.
 
-If exactly one active campaign is returned, the agent may automatically select it.
+When exactly one active campaign is returned:
+- The agent may automatically select that campaign.
 
-If no active campaigns are returned, do not send any emails and inform the user that there are no active campaigns.
+When no active campaigns are returned:
+- Do not send any retention emails.
+- Inform the user that no active retention campaigns are currently available.
 
-Never invent a campaign or campaign ID.]]></mcp:description>
+The agent must use the Campaign ID returned by this tool and must never invent, modify, or assume a Campaign ID.]]></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {},

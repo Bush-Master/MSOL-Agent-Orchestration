@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
-	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
-http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd">
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 	<configuration-properties doc:name="Configuration properties" doc:id="4f31bb07-1d07-4035-90f8-0d90d34c0bc8" file="properties.yaml" />
 	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="7abb3b5b-2044-4594-b827-4d2b6611b125" >
-		<salesforce:basic-connection username="${salesforce.username}" password="${salesforce.password}" url="https://login.salesforce.com/services/Soap/u/64.0" />
+		<salesforce:basic-connection username="${secure::salesforce.username}" password="${secure::salesforce.password}" url="https://login.salesforce.com/services/Soap/u/64.0" />
 	</salesforce:sfdc-config>
 	<mcp:server-config name="MCP_Server" doc:name="MCP Server" doc:id="8a609db9-d0bc-470b-a55d-ea9571300192" serverName="${mcp.name}" serverVersion="${mcp.version}" > 
 		<mcp:streamable-http-server-connection listenerConfig="HTTP_Listener_config_8081" responseContentType="JSON" requestTimeoutUnit="MINUTES"/>
@@ -19,7 +20,7 @@ http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<email:smtp-config name="Email_SMTP_AWS" doc:name="Email SMTP" doc:id="ae306015-693f-4150-83e3-9ca5d8ec7991" >
-		<email:smtp-connection host="${aws.host}" port="${aws.port}" user="${aws.user}" password="${aws.password}" >
+		<email:smtp-connection host="${aws.host}" port="${aws.port}" user="${secure::aws.user}" password="${secure::aws.password}" >
 			<email:properties >
 				<email:property key="mail.smtp.starttls.enable" value="true" />
 				<email:property key="mail.smtp.starttls.required" value="true" />
@@ -29,12 +30,13 @@ http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/
 	<http:request-config name="HTTP_Request_config_twilio" doc:name="HTTP Request config" doc:id="4e1ffadc-d4ab-4e5a-9145-9cc81f5693be" >
 		<http:request-connection protocol="HTTPS" host="${twilio.host}" port="${twilio.port}" >
 			<http:authentication >
-				<http:basic-authentication username="${twilio.username}" password="${twilio.password}" />
+				<http:basic-authentication username="${secure::twilio.username}" password="${secure::twilio.password}" />
 			</http:authentication>
 		</http:request-connection>
 	</http:request-config>
 	<http:request-config name="HTTP_Request_config_meta" doc:name="HTTP Request config" doc:id="81b305fe-2df6-4a76-8bd9-dde195b955b1" >
 		<http:request-connection protocol="HTTPS" host="${meta.host}" port="${meta.port}" />
 	</http:request-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="92fda2d8-d1af-4d51-8629-51fe035cbba5" file="properties.yaml" key="MySecertKey12345" />
 
 </mule>

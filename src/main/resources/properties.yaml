@@ -1,0 +1,32 @@
+https:
+   host: "localhost"
+   port: "8081"
+   path: "helloworld"
+   
+salesforce:
+   username: "![/NUHjN3VYDmJQSVeTFZZBAVJVkv9+h6ccv32RxZIYgupYUmcE1A6LxWz+vLp9xiD]"
+   password: "![n9t7OuDyrzbfmxKJTS6eUg==]"
+
+mcp:
+   name: "mule-salesforce-integration"
+   version: "1.0.0"
+   
+aws:
+   host: "email-smtp.ap-southeast-2.amazonaws.com"
+   port: "587"
+   user: "![cOX1EQoxewXT6giTEM017Mj5WoUyiOOH0BJbDfSIiLQ=]"
+   password: "![xyVANDR1KDFG7EBCl4BRcZavGzz4paCrpu0L2FjKJL4wSMIm3x3dQrA1OctQ2ZeV]"
+   fromEmail: "iam29.gulshan@gmail.com"
+   
+twilio:
+   host: "api.twilio.com"
+   port: "443"
+   username: "![TkYJB2qzhqe6T6nuSoLeI0Roi60keowL/UT7UPZH/deP0FWPtkgC0bMKR3S6QNIf]"
+   password: "![T4UDnSo96Ux+vKgfmGDpdqQC5wGdibr3CKpO1++Phll54C5LUKP6qr1Br6wv5KPf]"
+   fromNumber: "+15706522109"
+  
+meta:  
+   host: "graph.facebook.com"
+   port: "443"
+   phoneID: "![i45peIvy93sAecmKmHjLo1ZvijRvqtEgKef2lYfx8W0=]"
+   authorization: "Bearer EAAZAjDOZBfZAPABSsn7jwDQ34tNG8X31RsHb1TM8b1prKzqRUot3MhhrQlnYa24llUZBeKMfvTA8EKn5Jj68yi0bZCM0GS71KIPcIZAzu4okyK3nwfcM7TQs11XK0oZCvnBAEUJoUKeUDZCVZBZAelyEpo1av5VUeE5ZCqvF6tdGeUPAux5lcsmUjZBamk4ZAPCgry6Yeua40oZBcdpoUMVljsrLLGrKu5RY0E5DXM3GtpHp9E2TdXqaHaSHIT6hfMZBbwOiD8xLCZCl8fZAaeLrsfmSmLI8QAFzy"

@@ -9,7 +9,18 @@ http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
 	<flow name="get-customer-details-with-highest-churn-score-flow" doc:id="cfe12ed5-87ef-448c-ad3c-79c67758e040" >
 		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Highest Churn" doc:id="318b48e9-07fc-438a-80b4-6abe042542de" config-ref="MCP_Server" name="get-customer-details-with-highest-churn-score">
-			<mcp:description ><![CDATA[return the details of  customers highest churn score.]]></mcp:description>
+			<mcp:description ><![CDATA[Retrieve the top N Salesforce customer accounts with the highest Churn Scores.
+
+The "num" parameter specifies the maximum number of customers to return. For example, if num is 5, the tool returns the 5 customers with the highest Churn Scores.
+
+Customers are ordered by Churn Score in descending order, so the customer with the highest Churn Score appears first.
+
+The response always contains the available customer records in a table format with the following columns:
+Customer ID, Customer Name, Account Number, Email, Joined Date, Tenure (Years), Valid Till, Last Billing Date, Total Revenue, Autopay Enabled, Contact Preference, Churn Score, and Churn Risk Level.
+
+Only Salesforce Account records with an Account Number starting with "ACC" are included.
+
+If fewer than the requested number of customers are available, all available matching customers are returned.]]></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {

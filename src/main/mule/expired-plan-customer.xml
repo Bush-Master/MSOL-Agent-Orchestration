@@ -8,7 +8,16 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="expired-plan-customer-flow" doc:id="73d54a32-b922-4ee6-bda6-baad93206946" >
 		<mcp:tool-listener doc:name="MCP Server - Tool Listener - Expired Plans" doc:id="683f1555-70b4-4a1c-812e-af08dbe249c5" config-ref="MCP_Server" name="get-customer-with-expired-or-expiring-plans">
-			<mcp:description ><![CDATA[return the customer details with expired or expiring plan.]]></mcp:description>
+			<mcp:description ><![CDATA[Retrieve customer accounts whose plan has already expired or whose plan will expire within the specified number of days from the current date.
+
+The "days" parameter defines the expiry window. For example, if days is 30, the tool returns customers whose Valid Till date is on or before 30 days from today.
+
+Customers are ordered by Valid Till date in ascending order, so customers with the earliest expiry dates appear first.
+
+The response always contains the available customer records in a table format with the following columns:
+Customer ID, Customer Name, Account Number, Email, Joined Date, Tenure (Years), Last Billing Date, Valid Till, Total Revenue, Autopay Enabled, Contact Preference, Churn Score, and Churn Risk Level.
+
+If no customers have expired or expiring plans within the specified period, the tool returns an empty result.]]></mcp:description>
 			<mcp:parameters-schema ><![CDATA[{
   "type": "object",
   "properties": {
