@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+      http://www.mulesoft.org/schema/mule/core
+      http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http
+      http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+
+    <flow name="health-check-flowFlow">
+
+        <scheduler doc:name="Health Check">
+            <scheduling-strategy>
+                <fixed-frequency
+                    frequency="1"
+                    timeUnit="DAYS"/>
+            </scheduling-strategy>
+        </scheduler>
+
+        <!-- Twilio health check -->
+        <try>
+            <http:request
+                config-ref="HTTP_Request_config_twilio"
+                path="/2010-04-01/Accounts/${secure::twilio.username}.json"
+                doc:name="Check Twilio Health" sendBodyMode="ALWAYS"/>
+
+            <logger level="INFO"
+                    message="Twilio health check : [ OK ] ."/>
+
+            <error-handler>
+                <on-error-continue logException="false">
+                    <logger level="ERROR"
+                            message="#['Twilio health check failed. error: $(error.description default 'Unknown error')']"/>
+                </on-error-continue>
+            </error-handler>
+        </try>
+
+        <!-- Meta WhatsApp health check -->
+        <try>
+            <http:request
+                config-ref="HTTP_Request_config_meta"
+                path="/v25.0/${secure::meta.phoneID}"
+                doc:name="Check Meta WhatsApp Health" sendBodyMode="ALWAYS">
+                <http:headers><![CDATA[#[{
+                    "Authorization": p("meta.authorization"),
+                    "Accept": "application/json"
+                }]]]></http:headers>
+            </http:request>
+
+            <logger level="INFO"
+                    message="Meta WhatsApp health check : [ OK ]."/>
+
+            <error-handler>
+                <on-error-continue logException="false">
+                    <logger level="ERROR"
+                            message="#['Meta WhatsApp health check failed. Error: $(error.description default 'Unknown error')']"/>
+                </on-error-continue>
+            </error-handler>
+        </try>
+
+        <!-- AWS SES: no email is sent -->
+        
+<!-- AWS SES health check by sending a test email -->
+<try doc:name="AWS SES Health Check">
+
+    <email:send
+        config-ref="Email_SMTP_AWS"
+        fromAddress="${aws.fromEmail}"
+        subject="AWS SES Health Check"
+        doc:name="Send AWS SES Test Email">
+
+        <email:to-addresses>
+            <email:to-address value="${aws.healthcheckEmail}"/>
+        </email:to-addresses>
+
+        <email:body contentType="text/plain">
+            <email:content><![CDATA[
+AWS SES health check successful.
+This is an automated test email from MuleSoft.
+            ]]></email:content>
+        </email:body>
+
+    </email:send>
+
+    <logger
+        level="INFO"
+        message="AWS SES health check successful: test email submitted. [ OK ]"/>
+
+    <error-handler>
+        <on-error-continue logException="false">
+            <logger
+                level="ERROR"
+                message="#['AWS SES health check failed. Error: ' ++ ((error.description default 'Unknown error') as String)]"/>
+        </on-error-continue>
+    </error-handler>
+
+</try>
+<!-- Salesforce health check -->
+<try doc:name="Salesforce Health Check">
+
+    <salesforce:query doc:name="Query" doc:id="96a2c458-f700-4ecc-9ce3-f57d7dfc3424" config-ref="Salesforce_Config">
+				<salesforce:salesforce-query ><![CDATA[SELECT Id FROM Organization LIMIT 1]]></salesforce:salesforce-query>
+			</salesforce:query>
+			<logger
+        level="INFO"
+        message="Salesforce health check successful. [ OK ]"/>
+
+    <error-handler>
+        <on-error-continue logException="false">
+            <logger
+                level="ERROR"
+                message="#['Salesforce health check failed. Error: ' ++ ((error.description default 'Unknown error') as String)]"/>
+        </on-error-continue>
+    </error-handler>
+
+</try>
+        
+    </flow>
+
+</mule>

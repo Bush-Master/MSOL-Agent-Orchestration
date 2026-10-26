@@ -372,14 +372,17 @@ Examples:
 		<set-variable value="#[payload.emailTemplate]" doc:name="Set Variable -- emailTemplete" doc:id="bc630cfd-60b4-4dd4-b031-01a37120f03f" variableName="emailTemplete"/>
 		<set-variable value="#[payload.whatsappMessageTemplate]" doc:name="Set Variable -- whatsappTemplete" doc:id="252a7fab-880f-4fe3-bc42-4d5a12528651" variableName="whatsappTemplete"/>
 		<set-variable value="#[payload.smsMessageTemplate]" doc:name="Set Variable -- smsTemplete" doc:id="86e61426-27f8-48de-bb92-49f3df4daf2d" variableName="smsTemplete"/>
-		<foreach doc:name="For Each -- customer" doc:id="339d7502-1b25-4625-8e95-2f48a87fde93" collection="#[payload.customers]">
+		<set-variable value="#[payload.customers]" doc:name="Set Variable -- customers" doc:id="cd3045ee-2667-42ce-b80b-e9fbae7939f3" variableName="customers"/>
+		<set-variable value="" doc:name="Set Variable -- responseSummary" doc:id="c807a2f0-021e-4ab1-a7bd-803298fb838b" variableName="responseSummary"/>
+		<foreach doc:name="For Each -- customer" doc:id="339d7502-1b25-4625-8e95-2f48a87fde93" collection="#[vars.customers]">
+			<set-variable value="#[payload]" doc:name="Set Variable -- customer" doc:id="c3fba502-c827-4f57-9790-7e6bcd2612e3" variableName="customer"/>
 			<choice doc:name="Choice -- sagregatingCustomerDetails" doc:id="3c9a00d5-1184-4096-8374-c3c80b9c24cc" >
-				<when expression='#[payload.Contact_Preference__c == "Email"]'>
+				<when expression='#[vars.customer.Contact_Preference__c == "Email"]'>
 					<logger level="INFO" doc:name="Logger" doc:id="f1992e34-ca5a-484a-b4cb-9719a07155c1" message='#[{"Email" : payload}]'/>
-					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="1facff3d-5033-4012-805b-286c7800a7b6" variableName="actualMessage"/>
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((vars.customer.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((vars.customer.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="1facff3d-5033-4012-805b-286c7800a7b6" variableName="actualMessage"/>
 					<logger level="INFO" doc:name="Logger" doc:id="57c1000b-3559-44f9-b984-b02a0a20b251" message="#[vars.actualMessage]"/>
 					<try doc:name="Try" doc:id="70a165fc-8413-43eb-9719-6b29d0d68321" >
-						<email:send doc:name="Send -- email request sent" doc:id="aab8dea8-f231-49a0-8164-e65ce1904d14" config-ref="Email_SMTP_AWS" toAddresses="#[[payload.Email__c]]" fromAddress="${aws.fromEmail}" subject="Test Email">
+						<email:send doc:name="Send -- email request sent" doc:id="aab8dea8-f231-49a0-8164-e65ce1904d14" config-ref="Email_SMTP_AWS" toAddresses="#[[vars.customer.Email__c]]" fromAddress="${aws.fromEmail}" subject="Test Email">
 						<email:body>
 							<email:content><![CDATA[#[%dw 2.0
 output text/plain
@@ -387,17 +390,19 @@ output text/plain
 vars.actualMessage]]]></email:content>
 						</email:body>
 					</email:send>
-						<logger level="INFO" doc:name="Logger -- Email SENT" doc:id="2b843a68-eb6a-4365-aa29-e49aebe1b29f" message='#["Email Sent to : " ++ payload.Email__c ++ "."]' />
+						<logger level="INFO" doc:name="Logger -- Email SENT" doc:id="2b843a68-eb6a-4365-aa29-e49aebe1b29f" message='#["Email Sent to : " ++ vars.customer.Email__c ++ "."]' />
+						<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""):Email Successfully sent.`]' doc:name="Set Variable -- responseSummary" doc:id="89c00e45-24d3-4fd0-a8d2-68b151ef4554" variableName="responseSummary"/>
 						<error-handler >
 							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="32fd4214-240c-4168-9b83-148a291bca36" >
-								<logger level="ERROR" doc:name="Logger -- Email Error" doc:id="e6dcf914-319f-4e89-b335-5ce40c982294" message="#['EMAIL FAILED | Customer=' ++&#10;                    (payload.Id default 'UNKNOWN') ++&#10;                    ' | Email=' ++&#10;                    (payload.Email__c default 'UNKNOWN') ++&#10;                    ' | Error=' ++&#10;                    (error.description default 'Unknown error')]"/>
+								<logger level="ERROR" doc:name="Logger -- Email Error" doc:id="e6dcf914-319f-4e89-b335-5ce40c982294" message="#['EMAIL FAILED | Customer=' ++&#10;                    (vars.customer.Name default 'UNKNOWN') ++&#10;                    ' | Email=' ++&#10;                    (vars.customer.Email__c default 'UNKNOWN') ++&#10;                    ' | Error=' ++&#10;                    (error.description default 'Unknown error')]"/>
+								<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""):Email Failed. Reason: $(error.description default "")`]' doc:name="Set Variable  -- responseSummary" doc:id="d34b7278-03a5-48b5-81ea-b5cce767c0b8" variableName="responseSummary"/>
 							</on-error-continue>
 						</error-handler>
 					</try>
 				</when>
-				<when expression='#[payload.Contact_Preference__c == "SMS"]'>
+				<when expression='#[vars.customer.Contact_Preference__c == "SMS"]'>
 					<logger level="INFO" doc:name="Logger " doc:id="0e32edea-fecb-4718-8148-ecc00e10401c" message='#[{"SMS" : payload}]'/>
-					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="e74fdad4-9337-4ac3-ac61-c39ace131dd7" variableName="actualMessage" />
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.smsTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((vars.customer.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((vars.customer.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="e74fdad4-9337-4ac3-ac61-c39ace131dd7" variableName="actualMessage" />
 					<logger level="INFO" doc:name="Logger" doc:id="229d0a9c-a65d-4a2e-ab12-2b6018d88a44" message="#[vars.actualMessage]" />
 					<try doc:name="Try" doc:id="f08643c9-4d25-4d35-9a72-b8eccb48453e" >
 						<http:request doc:name="Request -- Twilio SMS Request" doc:id="98930359-98f6-4c01-a6b9-99b4780f1c11" config-ref="HTTP_Request_config_twilio" method="POST" path="/2010-04-01/Accounts/${secure::twilio.username}/Messages.json">
@@ -405,7 +410,7 @@ vars.actualMessage]]]></email:content>
 output application/x-www-form-urlencoded
 ---
 {
-    To: payload.Phone__c,
+    To: vars.customer.Phone__c,
     From: p('twilio.fromNumber'),
     Body: vars.actualMessage
 }]]]></http:body>
@@ -415,17 +420,19 @@ output application/x-www-form-urlencoded
 	"Content-Type" : "application/x-www-form-urlencoded"
 }]]]></http:headers>
 					</http:request>
-						<logger level="INFO" doc:name="Logger -- SMS SENT" doc:id="b5a041b6-9767-474b-ba95-1190a53f56f4" message="#['SMS SENT | Customer=' ++&#10;            (payload.Name default 'UNKNOWN') ++&#10;            ' | Phone=' ++&#10;            (payload.Phone__c default 'UNKNOWN')]" />
+						<logger level="INFO" doc:name="Logger -- SMS SENT" doc:id="b5a041b6-9767-474b-ba95-1190a53f56f4" message="#['SMS SENT | Customer=' ++&#10;            (vars.customer.Name default 'UNKNOWN') ++&#10;            ' | Phone=' ++&#10;            (vars.customer.Phone__c default 'UNKNOWN')]" />
+						<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""): SMS Successfully sent.`]' doc:name="Set Variable -- responseSummary" doc:id="27ef0c65-0885-4a3e-a6ce-9958c31576d5" variableName="responseSummary" />
 						<error-handler >
 							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5cb4ab18-7450-4608-b872-91ca092fa50d" >
-								<logger level="ERROR" doc:name="Logger -- SMS Error" doc:id="357b0b3e-fb46-4513-896d-28cc75b3ea83" message="#['SMS FAILED | Customer=' ++&#10;                    (payload.Id default 'UNKNOWN') ++&#10;                    ' | Phone=' ++&#10;                    (payload.Phone__c default 'UNKNOWN') ++&#10;                    ' | ErrorType=' ++&#10;                    (error.errorType.identifier default 'UNKNOWN') ++&#10;                    ' | Description=' ++&#10;                    (error.description default 'Unknown error')]"/>
+								<logger level="ERROR" doc:name="Logger -- SMS Error" doc:id="357b0b3e-fb46-4513-896d-28cc75b3ea83" message="#['SMS FAILED | Customer=' ++&#10;                    (vars.customer.Name default 'UNKNOWN') ++&#10;                    ' | Phone=' ++&#10;                    (vars.customer.Phone__c default 'UNKNOWN') ++&#10;                    ' | ErrorType=' ++&#10;                    (error.errorType.identifier default 'UNKNOWN') ++&#10;                    ' | Description=' ++&#10;                    (error.description default 'Unknown error')]"/>
+								<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""):SMS Failed. Reason: $(error.description default "")`]' doc:name="Set Variable  -- responseSummary" doc:id="0bfb5141-9968-48ee-9213-aecf8a3501b5" variableName="responseSummary" />
 							</on-error-continue>
 						</error-handler>
 					</try>
 				</when>
-				<when expression='#[payload.Contact_Preference__c == "Whatsapp"]'>
+				<when expression='#[vars.customer.Contact_Preference__c == "Whatsapp"]'>
 					<logger level="ERROR" doc:name="Logger" doc:id="82740f6a-8ef5-4fd6-be30-64d26eb7141f" message='#[{"Whatsapp" : payload}]'/>
-					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.emailTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((payload.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((payload.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="0435a396-452a-437a-90c1-ca9b9fea0ce8" variableName="actualMessage" />
+					<set-variable value='#[%dw 2.0&#10;output text/plain&#10;&#10;---&#10;&#10;(vars.whatsappTemplete default "")&#10;    replace /(?i)\{\{NAME\}\}/ with ((vars.customer.Name default "Customer") as String)&#10;    replace /(?i)\{\{ACCOUNTNUMBER\}\}/ with ((vars.customer.AccountNumber default "N/A") as String)]' doc:name="Set Variable -- actualMessage" doc:id="0435a396-452a-437a-90c1-ca9b9fea0ce8" variableName="actualMessage" />
 					<logger level="INFO" doc:name="Logger" doc:id="93b84639-cbd4-4fe0-9eaf-8e1340d0605b" message="#[vars.actualMessage]" />
 					<try doc:name="Try" doc:id="96ce6b4a-b88d-4056-81de-f475e59aa7e0" >
 						<http:request doc:name="Request -- meta whatsapp request" doc:id="e957e06e-e49a-4071-9615-c07d8849807c" config-ref="HTTP_Request_config_meta" method="POST" path="/v25.0/${secure::meta.phoneID}/messages">
@@ -434,7 +441,7 @@ output application/json
 ---
 {
   "messaging_product": "whatsapp",
-  "to": payload.Phone__c,
+  "to": vars.customer.Phone__c,
   "type": "text",
   "text": {
     "body": (vars.actualMessage default "") as String
@@ -447,10 +454,12 @@ output application/json
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 					</http:request>
-						<logger level="INFO" doc:name="Logger -- Whatsapp Message Sent" doc:id="fa0dbf1c-f69c-473b-ad1d-f7ff6fe19a97" message="#['WHATSAPP SENT | Customer=' ++&#10;            (payload.Id default 'UNKNOWN') ++&#10;            ' | Phone=' ++&#10;            (payload.Phone__c default 'UNKNOWN')]" />
+						<logger level="INFO" doc:name="Logger -- Whatsapp Message Sent" doc:id="fa0dbf1c-f69c-473b-ad1d-f7ff6fe19a97" message="#['WHATSAPP SENT | Customer=' ++&#10;            (vars.customer.Name default 'UNKNOWN') ++&#10;            ' | Phone=' ++&#10;            (vars.customer.Phone__c default 'UNKNOWN')]" />
+						<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""): Whatsapp Message Successfully sent.`]' doc:name="Set Variable -- responseSummary" doc:id="e0bcf771-daf2-4d44-bbe8-50cb023210cc" variableName="responseSummary" />
 						<error-handler >
 							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3f33532b-c6fe-4fde-afd6-ed86f1447bec" >
 								<logger level="ERROR" doc:name="Logger --  whatsapp error" doc:id="1a53de3d-db67-440c-943b-3c8845e51c01" message='#[%dw 2.0&#10;output text/plain&#10;---&#10;"WHATSAPP FAILED | Customer=" ++&#10;((payload.Id default "UNKNOWN") as String) ++&#10;" | Phone=" ++&#10;((payload.Phone__c default "UNKNOWN") as String) ++&#10;" | ErrorType=" ++&#10;((error.errorType.identifier default "UNKNOWN") as String) ++&#10;" | Description=" ++&#10;((error.description default "Unknown error") as String)]'/>
+								<set-variable value='#[output text/plain&#10;---&#10;`$(vars.responseSummary default "")\n$(vars.customer.Name default ""):Whatsapp Message Failed. Reason: $(error.description default "")`]' doc:name="Set Variable  -- responseSummary" doc:id="5fcfd817-904c-4137-9a4b-c3f88269e15f" variableName="responseSummary" />
 							</on-error-continue>
 						</error-handler>
 					</try>
@@ -460,12 +469,10 @@ output application/json
 		<ee:transform doc:name="Transform Message" doc:id="94a3a61c-9dc9-4ede-ad7c-da27c68bd050" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output text/plain
 ---
-{
-    success: true,
-    message: "Customer communication processing completed successfully"
-}]]></ee:set-payload>
+`Total Customers Processed: $(sizeOf(vars.customers default []))\nDetails: \n$(vars.responseSummary default "")`
+]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>

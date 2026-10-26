@@ -17,6 +17,7 @@ aws:
    user: "![cOX1EQoxewXT6giTEM017Mj5WoUyiOOH0BJbDfSIiLQ=]"
    password: "![xyVANDR1KDFG7EBCl4BRcZavGzz4paCrpu0L2FjKJL4wSMIm3x3dQrA1OctQ2ZeV]"
    fromEmail: "iam29.gulshan@gmail.com"
+   healthcheckEmail: "gulshan.vssut@gmail.com"
    
 twilio:
    host: "api.twilio.com"
@@ -29,4 +30,4 @@ meta:
    host: "graph.facebook.com"
    port: "443"
    phoneID: "![i45peIvy93sAecmKmHjLo1ZvijRvqtEgKef2lYfx8W0=]"
-   authorization: "Bearer EAAZAjDOZBfZAPABSsn7jwDQ34tNG8X31RsHb1TM8b1prKzqRUot3MhhrQlnYa24llUZBeKMfvTA8EKn5Jj68yi0bZCM0GS71KIPcIZAzu4okyK3nwfcM7TQs11XK0oZCvnBAEUJoUKeUDZCVZBZAelyEpo1av5VUeE5ZCqvF6tdGeUPAux5lcsmUjZBamk4ZAPCgry6Yeua40oZBcdpoUMVljsrLLGrKu5RY0E5DXM3GtpHp9E2TdXqaHaSHIT6hfMZBbwOiD8xLCZCl8fZAaeLrsfmSmLI8QAFzy"
+   authorization: "Bearer EAAZAjDOZBfZAPABS5wjsDSw9NyiYKcHAKKXVDcJTCdTAVvGazogSs2oKSPTSrm0jaNs03H6ZCfZBZAsXifSdDOm06lMo1GloPO2VcaQsaXCXSKIbbWWKriYKkBMs6PWZAR25ZB8vPkJpEgxbMz4kdm9KTeZAtUFybPrKyAj1CVWKXOsYE3ZCIpvZCFkvHZAfy3NX8orAZCXm0hc38XVkgzE2NSTwuSh3EZC8zQiVGLrdQ6ZAPHfwKkZCd0vEyhky6GVwcEvTwZANF0lNlQ7z3GfDZCEWmpVfBxvPFmlPTO"
