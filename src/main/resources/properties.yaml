@@ -30,4 +30,4 @@ meta:
    host: "graph.facebook.com"
    port: "443"
    phoneID: "![i45peIvy93sAecmKmHjLo1ZvijRvqtEgKef2lYfx8W0=]"
-   authorization: "Bearer EAAZAjDOZBfZAPABS5wjsDSw9NyiYKcHAKKXVDcJTCdTAVvGazogSs2oKSPTSrm0jaNs03H6ZCfZBZAsXifSdDOm06lMo1GloPO2VcaQsaXCXSKIbbWWKriYKkBMs6PWZAR25ZB8vPkJpEgxbMz4kdm9KTeZAtUFybPrKyAj1CVWKXOsYE3ZCIpvZCFkvHZAfy3NX8orAZCXm0hc38XVkgzE2NSTwuSh3EZC8zQiVGLrdQ6ZAPHfwKkZCd0vEyhky6GVwcEvTwZANF0lNlQ7z3GfDZCEWmpVfBxvPFmlPTO"
+   authorization: "Bearer ${meta.key}"

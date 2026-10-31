@@ -37,6 +37,6 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 	<http:request-config name="HTTP_Request_config_meta" doc:name="HTTP Request config" doc:id="81b305fe-2df6-4a76-8bd9-dde195b955b1" >
 		<http:request-connection protocol="HTTPS" host="${meta.host}" port="${meta.port}" />
 	</http:request-config>
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="92fda2d8-d1af-4d51-8629-51fe035cbba5" file="properties.yaml" key="MySecertKey12345" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="92fda2d8-d1af-4d51-8629-51fe035cbba5" file="properties.yaml" key="${pw}" />
 
 </mule>
